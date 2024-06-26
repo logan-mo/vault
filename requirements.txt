@@ -6,3 +6,4 @@ pinecone-client>=2.2.1
 pillow
 unstructured
 tqdm
+cohere
