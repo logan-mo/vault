@@ -24,6 +24,7 @@ def show():
     pinecone_index_name = st.text_input("Pinecone Index Name", value=st.secrets.get("PINECONE_INDEX", ""))
     pinecone_cloud = st.text_input("Pinecone Cloud", value=st.secrets.get("PINECONE_CLOUD", "aws"))
     pinecone_environment = st.text_input("Pinecone Environment", value=st.secrets.get("PINECONE_ENVIRONMENT", ""))
+    cohere_api_key = st.text_input("Cohere API Key", type="password", value=st.secrets.get("COHERE_API_KEY", ""))
 
     if st.button("Save Settings"):
         # In a real application, you'd want to securely store these keys
@@ -33,6 +34,7 @@ def show():
         st.secrets["PINECONE_INDEX"] = pinecone_index_name
         st.secrets["PINECONE_CLOUD"] = pinecone_cloud
         st.secrets["PINECONE_ENVIRONMENT"] = pinecone_environment
+        st.secrets["COHERE_API_KEY"] = cohere_api_key
         st.success("API keys updated successfully!")
 
 
