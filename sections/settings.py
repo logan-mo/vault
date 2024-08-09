@@ -44,16 +44,7 @@ def show():
 
     if st.button("Save Settings"):
         # In a real application, you'd want to securely store these keys
-        # For this example, we'll just update the st.secrets dictionary
-        # st.secrets["OPENAI_API_KEY"] = openai_api_key
-        # st.secrets["PINECONE_API_KEY"] = pinecone_api_key
-        # st.secrets["PINECONE_INDEX"] = pinecone_index_name
-        # st.secrets["PINECONE_CLOUD"] = pinecone_cloud
-        # st.secrets["PINECONE_ENVIRONMENT"] = pinecone_environment
-        # st.secrets["COHERE_API_KEY"] = cohere_api_key
-        # st.success("API keys updated successfully!")
-
-        # Use the following code to update the secrets file
+        # For this example, we'll just use the following code to update the secrets file
         secretsfile = ".streamlit/secrets.toml"
         with open(secretsfile, "w") as f:
             f.write(
