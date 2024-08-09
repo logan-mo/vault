@@ -1,7 +1,15 @@
 import streamlit as st
 from PIL import Image
+import os
 
-# import os
+
+def secrets_file_exists() -> bool:
+    return os.path.isfile(".streamlit/secrets.toml")
+
+
+def initialize_secrets():
+    with open(".streamlit/secrets.toml", "w") as f:
+        f.write("")
 
 
 def show():
@@ -19,6 +27,10 @@ def show():
         logo = Image.open(uploaded_logo)
         logo.save("logo.png")
         st.success("Logo updated successfully!")
+
+    if not secrets_file_exists():
+        st.info("No secrets file found. Creating a new one.")
+        initialize_secrets()
 
     # API Keys
     openai_api_key = st.text_input(
