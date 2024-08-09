@@ -53,6 +53,11 @@ def show():
     cohere_api_key = st.text_input(
         "Cohere API Key", type="password", value=st.secrets.get("COHERE_API_KEY", "")
     )
+    huggingface_token = st.text_input(
+        "Hugging Face Token",
+        type="password",
+        value=st.secrets.get("HUGGINGFACE_TOKEN", ""),
+    )
 
     if st.button("Save Settings"):
         # In a real application, you'd want to securely store these keys
@@ -66,6 +71,7 @@ def show():
                 f'PINECONE_CLOUD="{pinecone_cloud}"\n'
                 f'PINECONE_ENVIRONMENT="{pinecone_environment}"\n'
                 f'COHERE_API_KEY="{cohere_api_key}"\n'
+                f'HUGGINGFACE_TOKEN="{huggingface_token}"\n'
             )
 
 

@@ -2,6 +2,8 @@ import openai
 import streamlit as st
 
 from utils.generator import get_context
+from utils.llms import LLMFactory, EmbeddingsFactory
+from utils.prompts import get_prompt_template_from_messages
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
@@ -39,7 +41,7 @@ def show():
     if "messages" not in st.session_state:
         st.session_state.messages = [{"role": "system", "content": get_system_prompt()}]
 
-    # Prompt for user input 
+    # Prompt for user input
     if prompt := st.chat_input(placeholder="Ask questions about InhouseGPT"):
         augmented_prompt = get_context(prompt)
         st.session_state.messages.append({"role": "user", "content": prompt})
@@ -63,18 +65,25 @@ def show():
             resp_container = st.empty()
 
             # Create a stream for chat completions
-            stream = openai.chat.completions.create(
-                model="gpt-4o-2024-05-13", # gpt-3.5-turbo is cheaper 
-                messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
-                stream=True,
+            # stream = openai.chat.completions.create(
+            #     model="gpt-4o-2024-05-13", # gpt-3.5-turbo is cheaper
+            #     messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
+            #     stream=True,
+            # )
+
+            llm = LLMFactory.create_openai_llm(
+                model="gpt-4o-mini",
+                api_key=st.secrets["OPENAI_API_KEY"],
             )
 
-            # Process each chunk as it arrives
+            stream = llm.stream(
+                get_prompt_template_from_messages(st.session_state.messages)
+            )
             for chunk in stream:
-                if chunk.choices[0].delta.content is not None:
-                    response += chunk.choices[0].delta.content
+                if chunk is not None:
+                    response += chunk
                     resp_container.markdown(response)
-                    
+
             message = {"role": "assistant", "content": response}
             st.session_state.messages.append(message)
 

@@ -4,7 +4,6 @@ try:
     from pages import vault, data, settings
 except FileNotFoundError as e:
     st.switch_page("pages/settings.py")
-    from pages import vault, data, settings
 
 
 def main():
