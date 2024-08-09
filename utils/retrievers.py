@@ -1,24 +1,21 @@
-# PineCone Retriever
-# Chroma Retriever
-# LanceDB Retriever
-# Semantic Search + Hybrid Search
-
+import openai
 from pinecone import Pinecone, ServerlessSpec
-from langchain_pinecone import PineconeVectorStore
+from pinecone_text.sparse import BM25Encoder
+
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 from langchain_core.retrievers import BaseRetriever
-from pinecone_text.sparse import BM25Encoder
+from langchain_core.language_models.llms import BaseLLM
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+
 from langchain_community.retrievers import PineconeHybridSearchRetriever
+from langchain.chains import create_history_aware_retriever, create_retrieval_chain
 
 
+from lancedb import LanceDBConnection
 from lancedb.embeddings import get_registry
 from lancedb.pydantic import LanceModel, Vector
-from lancedb import LanceDBConnection
 from lancedb.rerankers import LinearCombinationReranker
-from langchain_community.vectorstores import LanceDB
-
-import openai
 
 
 def LanceDBHybridSearchRetriever(BaseRetriever):
@@ -102,3 +99,24 @@ class RetrieverFactory:
         return LanceDBHybridSearchRetriever(
             db=db_conn, index_name=index_name, openai_api_key=openai_api_key
         )
+
+    @staticmethod
+    def create_history_aware_prompt(llm: BaseLLM, retriever: BaseRetriever) -> str:
+        # TODO: Translate the system prompt to German
+        contextualize_q_system_prompt = """Given a chat history and the latest user question \
+        which might reference context in the chat history, formulate a standalone question \
+        which can be understood without the chat history. Do NOT answer the question, \
+        just reformulate it if needed and otherwise return it as is."""
+        contextualize_q_prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", contextualize_q_system_prompt),
+                MessagesPlaceholder("chat_history"),
+                ("human", "{input}"),
+            ]
+        )
+
+        history_aware_retriever = create_history_aware_retriever(
+            llm, retriever, contextualize_q_prompt
+        )
+
+        return history_aware_retriever

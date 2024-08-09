@@ -1,7 +1,8 @@
 from langchain_openai import OpenAIEmbeddings
+from langchain_pinecone import PineconeEmbeddings
+
 from langchain_core.embeddings import Embeddings
 from langchain_community.embeddings import HuggingFaceEmbeddings, LlamaCppEmbeddings
-from langchain_pinecone import PineconeEmbeddings
 
 
 class EmbeddingsFactory:

@@ -1,11 +1,7 @@
 from typing import List, Dict
 
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.messages import (
-    AIMessage,
-    HumanMessage,
-    SystemMessage,
-)
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 
 def get_prompt_template_from_messages(

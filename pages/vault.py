@@ -2,7 +2,8 @@ import openai
 import streamlit as st
 
 from utils.generator import get_context
-from utils.llms import LLMFactory, EmbeddingsFactory
+from utils.llms import LLMFactory
+from utils.embeddings import EmbeddingsFactory
 from utils.prompts import get_prompt_template_from_messages
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
@@ -81,16 +82,21 @@ def show():
             #     api_key=st.secrets["OPENAI_API_KEY"],
             # )
 
-            llm = LLMFactory.create_huggingface_llm(
-                model_name="TroyDoesAI/Llama-3.1-8B-Instruct"
-            )
+            # llm = LLMFactory.create_huggingface_llm(
+            #     model_name="TroyDoesAI/Llama-3.1-8B-Instruct"
+            # )
+
+            llm = LLMFactory.create_llama_cpp_llm(model_path="ggml-model-Q4_K_M.gguf")
 
             template = get_prompt_template_from_messages(st.session_state.messages)
 
             stream = llm.stream(template.messages)
             for chunk in stream:
                 if chunk is not None:
-                    response += chunk.content
+                    try:
+                        response += chunk.content
+                    except AttributeError:
+                        response += chunk
                     resp_container.markdown(response)
 
             message = {"role": "assistant", "content": response}

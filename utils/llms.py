@@ -1,13 +1,9 @@
 from langchain_core.language_models.llms import BaseLLM
 
-
 from langchain_openai import ChatOpenAI
-from langchain_community.llms.huggingface_pipeline import (
-    HuggingFacePipeline,
-)  # TroyDoesAI/Llama-3.1-8B-Instruct
-
 from langchain_community.llms.vllm import VLLM
 from langchain_community.llms.llamacpp import LlamaCpp
+from langchain_community.llms.huggingface_pipeline import HuggingFacePipeline
 
 
 class LLMFactory:
@@ -18,6 +14,7 @@ class LLMFactory:
             openai_api_key=api_key,
         )
 
+    # TODO: Test on cloud
     @staticmethod
     def create_huggingface_llm(model_name: str) -> BaseLLM:
         return HuggingFacePipeline.from_model_id(
@@ -25,6 +22,7 @@ class LLMFactory:
             task="text-generation",
         )
 
+    # TODO: Test on cloud
     @staticmethod
     def create_vllm_llm(model_name: str) -> BaseLLM:
         return VLLM(
@@ -50,4 +48,5 @@ class LLMFactory:
             temperature=0.3,
             max_tokens=2000,
             top_p=1,
+            verbose=False,
         )
