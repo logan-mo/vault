@@ -18,8 +18,6 @@ def get_system_prompt():
 
     Am Anfang begrüßt du den Nutzer (kannst immer duzen!) und erklärst kurz über deine Funktionalitäten: 
 
-    "
-
     Hallo, ich bin VAULT.AI <-- erkläre hier 
 
     Ich kann zum Beispiel folgende Fragen beantworten: 
@@ -41,10 +39,14 @@ def show():
     if "messages" not in st.session_state:
         st.session_state.messages = [{"role": "system", "content": get_system_prompt()}]
 
+    # Diplay the system prompt as the first message
+    with st.chat_message("system"):
+        st.write(get_system_prompt())
+
     # Prompt for user input
     if prompt := st.chat_input(placeholder="Ask questions about InhouseGPT"):
         augmented_prompt = get_context(prompt)
-        st.session_state.messages.append({"role": "user", "content": prompt})
+        # st.session_state.messages.append({"role": "user", "content": prompt})
         st.session_state.messages.append({"role": "user", "content": augmented_prompt})
 
     # Display chat messages from history on app rerun
@@ -59,7 +61,10 @@ def show():
             #     st.dataframe(message["results"])
 
     # If last message is not from assistant, we need to generate a new response
-    if st.session_state.messages[-1]["role"] != "assistant":
+    if (
+        st.session_state.messages[-1]["role"] != "assistant"
+        and st.session_state.messages[-1]["role"] != "system"
+    ):
         with st.chat_message("assistant"):
             response = ""
             resp_container = st.empty()
@@ -71,17 +76,21 @@ def show():
             #     stream=True,
             # )
 
-            llm = LLMFactory.create_openai_llm(
-                model="gpt-4o-mini",
-                api_key=st.secrets["OPENAI_API_KEY"],
+            # llm = LLMFactory.create_openai_llm(
+            #     model_name="gpt-4o-mini",
+            #     api_key=st.secrets["OPENAI_API_KEY"],
+            # )
+
+            llm = LLMFactory.create_huggingface_llm(
+                model_name="TroyDoesAI/Llama-3.1-8B-Instruct"
             )
 
-            stream = llm.stream(
-                get_prompt_template_from_messages(st.session_state.messages)
-            )
+            template = get_prompt_template_from_messages(st.session_state.messages)
+
+            stream = llm.stream(template.messages)
             for chunk in stream:
                 if chunk is not None:
-                    response += chunk
+                    response += chunk.content
                     resp_container.markdown(response)
 
             message = {"role": "assistant", "content": response}
